@@ -1,15 +1,27 @@
 "use strict";
-var arr = [1, 2, 3, 4, 5, 6, 7, 8];
-console.log(arr);
-var reverseArray = function (arr) {
-    var length = arr.length;
-    for (var i = 0; i < length / 2; i++) {
-        var temp = arr[i];
-        arr[i] = arr[length - 1 - i];
-        arr[length - 1 - i] = temp;
-    }
-    return arr;
+var textArea = document.createElement('textarea');
+var container = document.createElement('p');
+var textAreaForbidden = document.createElement('textarea');
+var appContainer = document.querySelector('#app');
+var badWords = [];
+var forbiddenWords = function (text, words) {
+    words.forEach(function (word) {
+        var regex = new RegExp("\\b".concat(word, "\\b"), 'gi');
+        text = text.replace(regex, function (matched) { return "<del>".concat(matched, "</del>"); });
+    });
+    return text;
 };
-console.log(reverseArray(arr));
-var reversedArr = reverseArray(arr);
-console.log(reversedArr === arr);
+var generateArray = function (e) {
+    var inputWords = e.target.value
+        .replace(/[^\w\s]|_/g, '')
+        .split(' ')
+        .filter(function (word) { return word.length > 0; });
+    badWords.push.apply(badWords, inputWords);
+};
+textArea.addEventListener('input', function () {
+    container.innerHTML = forbiddenWords(textArea.value, badWords);
+});
+textAreaForbidden.addEventListener('input', generateArray);
+appContainer === null || appContainer === void 0 ? void 0 : appContainer.append(textArea);
+appContainer === null || appContainer === void 0 ? void 0 : appContainer.append(textAreaForbidden);
+appContainer === null || appContainer === void 0 ? void 0 : appContainer.append(container);
