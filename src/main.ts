@@ -1,31 +1,40 @@
-const textArea: HTMLTextAreaElement = document.createElement('textarea');
-const container: HTMLParagraphElement = document.createElement('p');
-const textAreaForbidden: HTMLTextAreaElement = document.createElement('textarea');
-const appContainer: HTMLDivElement | null = document.querySelector<HTMLDivElement>('#app');
-const badWords: Array<string> = [];
-
-const forbiddenWords = function(text: string, words: Array<string>): string {
-    words.forEach((word: string) => {
-        const regex = new RegExp(`\\b${word}\\b`, 'gi');
-        text = text.replace(regex, (matched) => `<del>${matched}</del>`);
-    });
-    return text;
+type Product = {
+    a: number;
+    b: number[];
+    c: Product | number;
 };
 
-const generateArray = function(e: Event): void {
-    const inputWords = (e.target as HTMLTextAreaElement).value
-        .replace(/[^\w\s]|_/g, '')
-        .split(' ')
-        .filter(word => word.length > 0);
-    badWords.push(...inputWords);
+const original: Product = {
+    a: 1,
+    b: [1, 2, 3],
+    c: {
+        a: 1,
+        b: [1, 2, 3],
+        c: 3,
+    },
 };
 
-textArea.addEventListener('input', () => {
-    container.innerHTML = forbiddenWords(textArea.value, badWords);
-});
+function deepClone<T>(source: T): T {
+    if (source === null || typeof source !== 'object') {
+        return source;
+    }
 
-textAreaForbidden.addEventListener('input', generateArray);
+    if (Array.isArray(source)) {
+        const arrayCopy = source.map(item => deepClone(item));
+        return arrayCopy as T;
+    }
 
-appContainer?.append(textArea);
-appContainer?.append(textAreaForbidden);
-appContainer?.append(container);
+    const objectCopy: Record<string, any> = {};
+    for (const key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+            objectCopy[key] = deepClone(source[key]);
+        }
+    }
+    return objectCopy as T;
+}
+
+const clonedObject = deepClone(original);
+console.log(clonedObject);
+console.log(clonedObject === original);
+console.log(clonedObject.b === original.b);
+console.log(clonedObject.c === original.c);
